@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="js,bind,new,polyfill,">
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2">
+
+
+
+
+
+
+<meta name="description" content="this的作用域的5个基本规则，里面有个bind()这个ES5才加进来的函数。有很多小细节自己总是搞不太清楚，所以看一看官方文档。">
+<meta name="keywords" content="js,bind,new,polyfill">
+<meta property="og:type" content="article">
+<meta property="og:title" content="读下文档之&#39;Bind( )&#39;">
+<meta property="og:url" content="http://yoursite.com/2019/03/17/bind/index.html">
+<meta property="og:site_name" content="Technical Blog">
+<meta property="og:description" content="this的作用域的5个基本规则，里面有个bind()这个ES5才加进来的函数。有很多小细节自己总是搞不太清楚，所以看一看官方文档。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-18T08:20:04.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="读下文档之&#39;Bind( )&#39;">
+<meta name="twitter:description" content="this的作用域的5个基本规则，里面有个bind()这个ES5才加进来的函数。有很多小细节自己总是搞不太清楚，所以看一看官方文档。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/03/17/bind/">
+
+
+
+
+
+  <title>读下文档之'Bind( )' | Technical Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Technical Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">A Front-End Notebook</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/17/bind/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Esther Zhou">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Technical Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">读下文档之'Bind( )'</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-17T22:54:12+08:00">
+                2019-03-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><code>this</code>的作用域的5个基本规则，里面有个bind()这个ES5才加进来的函数。有很多小细节自己总是搞不太清楚，所以看一看官方文档。 </p>
+<a id="more"></a>
+<p>p.s. 随便写写，看到新的、不清楚、不理解的概念就会加进来</p>
+<h2 id="从this的作用域说起…"><a href="#从this的作用域说起…" class="headerlink" title="从this的作用域说起…"></a>从<code>this</code>的作用域说起…</h2><p>下面一段简单的代码里介绍了<code>this</code>基本绑定规则的其中三种：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> user = <span class="string">'i am with window'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> o = &#123;</span><br><span class="line">    user: <span class="string">'i am with o'</span>,</span><br><span class="line">    a: &#123;</span><br><span class="line">        user: <span class="string">'i am with a'</span>,</span><br><span class="line">        fn: <span class="function"><span class="keyword">function</span> (<span class="params">args1, args2</span>) </span>&#123;</span><br><span class="line">            <span class="built_in">console</span>.log(<span class="keyword">this</span>.user); </span><br><span class="line">            <span class="built_in">console</span>.log(args1+args2);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 隐式绑定</span></span><br><span class="line">o.a.fn(<span class="number">10</span>, <span class="number">1</span>); <span class="comment">// "i am with a";   11</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 绑定丢失，变回默认绑定</span></span><br><span class="line"><span class="keyword">var</span> b = o.a.fn; <span class="comment">// 将fn赋值给变量b的时候没有执行，执行时就绑定在了window</span></span><br><span class="line">b();  <span class="comment">// "i am with window";   NaN</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 三种显式绑定</span></span><br><span class="line"><span class="keyword">var</span> c = o.a.fn;</span><br><span class="line">c.apply(o,[<span class="number">10</span>,<span class="number">1</span>]); <span class="comment">// "i am with o";   11</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> d = o.a.fn;</span><br><span class="line">d.call(a,<span class="number">10</span>,<span class="number">1</span>); <span class="comment">// "i am with a";   11</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> e = o.a.fn;</span><br><span class="line">e.bind(o); <span class="comment">// 代码不被打印，console会显示: fn(args1...</span></span><br><span class="line"><span class="keyword">var</span> e2 = e.bind(o, <span class="number">10</span>);</span><br><span class="line">e2(<span class="number">1</span>); <span class="comment">// "i am with o";   11</span></span><br></pre></td></tr></table></figure>
+<h2 id="bind-是怎么绑定this的"><a href="#bind-是怎么绑定this的" class="headerlink" title="bind()是怎么绑定this的"></a>bind()是怎么绑定this的</h2><p>###<code>bind ()</code>函数的定义：</p>
+<blockquote>
+<p>Definition:<br>The bind() method creates <em>a new function</em> that, when called, has its <code>this</code> keyword set to the provided value, with a given sequence of arguments preceding any provided when the new function is called.</p>
+</blockquote>
+<p>###<code>bind ()</code>函数的作用<br>（以下均为自译）<br><code>bind ()</code>函数创建的是一个<em>新的界限函数(BF)</em>。在ES6中定义它为：exotic function object即非标准的函数对象。<code>bind ()</code>函数作为一个bound，可以包装原函数对象。调用它时，则会执行被包装的这个函数对象。可以把bound function理解成一个边界，原函数对象存在于这个边界中。也叫做“函数绑定”。</p>
+<blockquote>
+<p>BF具有以下内部属性<br>[[BoundTargetFunction]] - 被包装的函数对象<br>[[BoundThis]] - 执行被包装的函数对象时，<code>this</code>关键字的值<br>[[BoundArguments]] - 参数列表，当执行被包装的函数对象时，这个列表将作为第一个参数被传入<br>[[Call]] - 执行与此对象关联的代码。通过函数调用表达式调用。内部方法的参数是<code>this</code>关键字的值和参数列表。</p>
+</blockquote>
+<h4 id="作用机制"><a href="#作用机制" class="headerlink" title="作用机制"></a>作用机制</h4><p>当调用(<code>bind ()</code>函数创建的这个)BF(官方：绑定函数)时，BF会通过<code>Call(boundThis, args)</code>在[[BoundTargetFunction]]调用[[Call]]。其中boundThis就是[[BoundThis]]，args就是[[BoundArguments]] </p>
+<p><code>new</code>运算符构造也可以创建BF</p>
+<p><span style="color: #f97d1c; border: 1px solid">！这段话不太理解！</span></p>
+<blockquote>
+<p>doing so acts as though the target function had instead been constructed. The provided this value is ignored, while prepended arguments are provided to the emulated function.</p>
+</blockquote>
+<h2 id="突然插进来的new"><a href="#突然插进来的new" class="headerlink" title="突然插进来的new"></a>突然插进来的<code>new</code></h2><h3 id="new运算符是干什么的"><a href="#new运算符是干什么的" class="headerlink" title="new运算符是干什么的"></a><code>new</code>运算符是干什么的</h3><p><code>new</code>运算符是用来创建一个<strong>对象实例</strong>的，这个对象需要有一个<em>constructor function</em>，可以是自定义的对象也可以是原生对象。<code>new</code>运算符可以绑定<code>this</code> 到这个新建的对象实例上，也是最开始没有提到的两个绑定规则之一(另一个是箭头函数)。</p>
+<blockquote>
+<p>The new operator lets developers create an instance of <em>a user-defined object type</em> or of <em>one of the built-in object types</em> that has a <em>constructor</em> function. The new keyword does the following things:</p>
+<ol>
+<li>Creates a blank, plain JavaScript object;</li>
+<li><em>Links (sets the constructor of)</em> this object to another object;</li>
+<li>Passes the newly created object from Step 1 as the <code>this</code> context;</li>
+<li>Returns this if the function doesn’t return its own object.</li>
+</ol>
+</blockquote>
+<h3 id="作用机制-1"><a href="#作用机制-1" class="headerlink" title="作用机制"></a>作用机制</h3><p>当执行 <code>new Foo(...)</code>时，会发生以下事情：</p>
+<ol>
+<li>创建一个新对象，该对象继承自<code>Foo.prototype</code></li>
+<li>使用指定的参数，调用<em>构造函数</em> Foo ，并将 this 绑定到新创建的对象。new Foo 等同于 new Foo()，也就是没有指定参数列表，Foo 不带任何参数调用的情况。</li>
+<li>由构造函数返回的对象就是 new 表达式的结果。这个对象不可以是null, false, 3.1415 和其它基本类型。如果构造函数没有显式explicityly返回一个对象，则步骤1创建的对象被返回。（一般情况下，构造函数不返回值，但是用户可以选择主动返回对象，来覆盖正常的对象创建步骤）</li>
+</ol>
+<h3 id="再回去看看"><a href="#再回去看看" class="headerlink" title="再回去看看"></a>再回去看看</h3><blockquote>
+<p>doing so acts as though the target function had instead been constructed. The provided this value is ignored, while prepended arguments are provided to the emulated function.</p>
+</blockquote>
+<p>其实就是用<code>new</code>创建BF，实际上<em>构造</em>了这个函数对象。使用<code>new</code>运算符并不需要提供this值，因为自然会绑定到这个新对象上。如果创建对象时提供了参数，这些参数会提供给这个新构造的函数对象。</p>
+<p>再回去继续看bind()。</p>
+<h2 id="bind-的应用"><a href="#bind-的应用" class="headerlink" title="bind()的应用"></a>bind()的应用</h2><ol>
+<li>绑定函数：即最开始的this的用法</li>
+<li><p>偏函数：使一个函数拥有给定的部分初始参数</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">list</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Array</span>.prototype.slice.call(<span class="built_in">arguments</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">addArguments</span>(<span class="params">arg1, arg2</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> arg1 + arg2</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建一个函数，它拥有预设参数列表。</span></span><br><span class="line"><span class="keyword">var</span> leadingThirtysevenList = list.bind(<span class="literal">null</span>, <span class="number">37</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建一个函数，它拥有预设的第一个参数</span></span><br><span class="line"><span class="keyword">var</span> addThirtySeven = addArguments.bind(<span class="literal">null</span>, <span class="number">37</span>); </span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> list1 = leadingThirtysevenList();  <span class="comment">// [37]</span></span><br><span class="line"><span class="keyword">var</span> list2 = leadingThirtysevenList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>);  <span class="comment">// [37, 1, 2, 3]</span></span><br><span class="line"><span class="keyword">var</span> result1 = addThirtySeven(<span class="number">5</span>); <span class="comment">// 37 + 5 = 42 </span></span><br><span class="line"><span class="keyword">var</span> result2 = addThirtySeven(<span class="number">5</span>, <span class="number">10</span>); <span class="comment">// 37 + 5 = 42 ，第二个参数被忽略</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配合 setTimeout, 把 this 绑定到回调函数，从而就不发生丢失</p>
+</li>
+<li>快捷应用</li>
+</ol>
+<h2 id="bind-的polyfill"><a href="#bind-的polyfill" class="headerlink" title="bind()的polyfill"></a>bind()的polyfill</h2><h3 id="polyfill又是什么？"><a href="#polyfill又是什么？" class="headerlink" title="polyfill又是什么？"></a>polyfill又是什么？</h3><p>Remy Sharp在2009年的书和博客中创造了这个词，即为js兼容旧版本浏览器而使用的插件<br>(<a href="https://remysharp.com/2010/10/08/what-is-a-polyfill/" target="_blank" rel="noopener">https://remysharp.com/2010/10/08/what-is-a-polyfill/</a>)</p>
+<blockquote>
+<p>According to Paul Irish, a polyfill is “a shim that mimics a future API, providing fallback functionality to older browsers”.  A polyfill fills in the gaps in older browsers that don’t support the HTML5 functionality in your site.  Learning to use polyfills will allow you as a developer to use HTML5 today without leaving behind users of older browsers.<br>(<a href="https://blogs.msdn.microsoft.com/jennifer/2011/08/04/html5-part-4-using-html5-while-retaining-support-for-older-browsers/" target="_blank" rel="noopener">https://blogs.msdn.microsoft.com/jennifer/2011/08/04/html5-part-4-using-html5-while-retaining-support-for-older-browsers/</a>)</p>
+</blockquote>
+<h3 id="shim"><a href="#shim" class="headerlink" title="shim?"></a>shim?</h3><blockquote>
+<p>Shim 指的是在一个旧的环境中模拟出一个新 API ，而且仅靠旧环境中已有的手段实现，以便所有的浏览器具有相同的行为。</p>
+</blockquote>
+<h3 id="简单的实现"><a href="#简单的实现" class="headerlink" title="简单的实现"></a>简单的实现</h3><p>网站提供了两种实现，第一种短小有效，但无法适用<code>new</code>操作符；第二种可以使用，但略冗长。一般情况下，第一种就足够用了，这里只记录第一种。</p>
+<p>再回头看一下<code>bind ()</code>的作用机制</p>
+<blockquote>
+<p>当调用(<code>bind ()</code>函数创建的这个)BF(官方：绑定函数)时，BF会通过<code>Call(boundThis, args)</code>在[[BoundTargetFunction]]调用[[Call]]。其中boundThis就是[[BoundThis]]，args就是[[BoundArguments]] </p>
+</blockquote>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 无法使用 `new funcA.bind(thisArg, args)`</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (!<span class="built_in">Function</span>.prototype.bind) (<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">var</span> ArrayPrototypeSlice = <span class="built_in">Array</span>.prototype.slice;</span><br><span class="line">    <span class="comment">// 在Function的原型上定义Bind()</span></span><br><span class="line">    <span class="built_in">Function</span>.prototype.bind = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="comment">// 获取[[BoundTargetFunction]]</span></span><br><span class="line">        <span class="keyword">var</span> thatFunc = <span class="keyword">this</span>;</span><br><span class="line">        <span class="comment">// 获取[[BoundThis]]的值</span></span><br><span class="line">        <span class="keyword">var</span> thatArg = <span class="built_in">arguments</span>[<span class="number">0</span>];</span><br><span class="line">            <span class="comment">// 获取[[BoundArguments]]</span></span><br><span class="line">        <span class="keyword">var</span> args = ArrayPrototypeSlice.call(<span class="built_in">arguments</span>, <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">typeof</span> thatFunc !== <span class="string">'function'</span>) &#123;</span><br><span class="line">            <span class="comment">// closest thing possible to the ECMAScript 5</span></span><br><span class="line">            <span class="comment">// internal IsCallable function</span></span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">TypeError</span>(<span class="string">'Function.prototype.bind - '</span> +</span><br><span class="line">                         <span class="string">'what is trying to be bound is not callable'</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">            args.push.apply(args, <span class="built_in">arguments</span>);</span><br><span class="line">            <span class="comment">// 在[[BoundTargetFunction]]上调用[[Call]]</span></span><br><span class="line">            <span class="comment">// 传入参数第一个是[[BoundThis]]，第二个是[[BoundArguments]] </span></span><br><span class="line">            <span class="keyword">return</span> thatFunc.apply(thatArg, args);</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
+<p>其它一些小知识点：</p>
+<ol>
+<li><p><code>args.push.apply(args, arguments)</code> 将arguments添加到args数组，是<code>apply()</code>的一个示例用法</p>
+</li>
+<li><p><code>Array.prototype.slice.call(arguments)</code>是怎么作用的</p>
+<ul>
+<li>通常在普通数组上调用<code>.slice()</code>时，实际上是调用一个类似于<code>object.method()</code>的方法，在这个对象上遍历。其中<code>object</code>就是<code>this</code>。也就是说只要这个<code>object</code>有一个数值的<code>.length</code>属性，和一些numeric indiced的属性，就可以调用<code>.slice()</code>，即<em> array-like object</em></li>
+<li><p><code>arguments</code>对象是一个<em> array-like object</em></p>
+</li>
+<li><p><code>.call()</code> 和 <code>.apply()</code>则将<code>this</code>绑定在<code>arguments</code>这个对象上</p>
+</li>
+</ul>
+</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/js/" rel="tag"># js</a>
+          
+            <a href="/tags/bind/" rel="tag"># bind</a>
+          
+            <a href="/tags/new/" rel="tag"># new</a>
+          
+            <a href="/tags/polyfill/" rel="tag"># polyfill</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/03/17/To-do-List/" rel="prev" title="To-do List">
+                To-do List <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/avatar.gif" alt="Esther Zhou">
+          <p class="site-author-name" itemprop="name">Esther Zhou</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#从this的作用域说起…"><span class="nav-number">1.</span> <span class="nav-text">从this的作用域说起…</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bind-是怎么绑定this的"><span class="nav-number">2.</span> <span class="nav-text">bind()是怎么绑定this的</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#作用机制"><span class="nav-number">2.0.1.</span> <span class="nav-text">作用机制</span></a></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#突然插进来的new"><span class="nav-number">3.</span> <span class="nav-text">突然插进来的new</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#new运算符是干什么的"><span class="nav-number">3.1.</span> <span class="nav-text">new运算符是干什么的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#作用机制-1"><span class="nav-number">3.2.</span> <span class="nav-text">作用机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#再回去看看"><span class="nav-number">3.3.</span> <span class="nav-text">再回去看看</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bind-的应用"><span class="nav-number">4.</span> <span class="nav-text">bind()的应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bind-的polyfill"><span class="nav-number">5.</span> <span class="nav-text">bind()的polyfill</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#polyfill又是什么？"><span class="nav-number">5.1.</span> <span class="nav-text">polyfill又是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shim"><span class="nav-number">5.2.</span> <span class="nav-text">shim?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#简单的实现"><span class="nav-number">5.3.</span> <span class="nav-text">简单的实现</span></a></li></ol></li></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-book"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Esther Zhou</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
