@@ -102,7 +102,7 @@
 <meta property="og:site_name" content="Technical Blog">
 <meta property="og:description" content="上次详细介绍了bind()函数和一系列相关的概念。这次继续跟着小红书和文档和谷哥看一下函数绑定，和与函数绑定紧密相关的函数柯里化(function currying)">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-03-19T08:01:07.000Z">
+<meta property="og:updated_time" content="2019-03-19T08:48:26.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="从函数绑定到函数柯里化">
 <meta name="twitter:description" content="上次详细介绍了bind()函数和一系列相关的概念。这次继续跟着小红书和文档和谷哥看一下函数绑定，和与函数绑定紧密相关的函数柯里化(function currying)">
@@ -181,7 +181,7 @@
       </a>
     </div>
       
-        <p class="site-subtitle">A Front-End Notebook</p>
+        <h1 class="site-subtitle" itemprop="description">A Front-End Notebook</h1>
       
   </div>
 
@@ -300,7 +300,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">从函数绑定到函数柯里化</h1>
+          <h2 class="post-title" itemprop="name headline">从函数绑定到函数柯里化</h2>
         
 
         <div class="post-meta">
@@ -328,7 +328,7 @@
               
                 <span class="post-meta-item-text">更新于</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2019-03-19T16:01:07+08:00">
+              <time title="更新于" itemprop="dateModified" datetime="2019-03-19T16:48:26+08:00">
                 2019-03-19
               </time>
             
@@ -390,7 +390,7 @@
 <p>函数绑定要创建一个函数，可以在特定的this环境中以指定参数调用另一个函数。该技巧常常和回调函数与事件处理程序一起使用，以便在将函数作为变量传递的同时保留代码执行环境。[^1]</p>
 </blockquote>
 <p>也就是为了避免隐式绑定的<code>this</code>在调用丢失(回到默认绑定)上，通过显式绑定或者闭包来保存执行环境。过多的闭包会导致代码难以理解和调试，所以我们常常会倾向于使用<code>bind()</code>函数来绑定这个执行环境。书里给了一个简单的利用闭包和<code>apply()</code>实现的<code>bind()</code>函数：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bind</span>(<span class="params">fn, context</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> fn.apply(context, <span class="built_in">arguments</span>);</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>在支持ES5的浏览器如IE9+, Chrome, Firefox4+中可以直接使用原生的<code>bind()</code>方法。</p>
+<p>在支持ES5的浏览器如IE9+, Chrome, Firefox4+ 中可以直接使用原生的<code>bind()</code>方法。</p>
 <p>但是被绑定的函数与普通函数相比，有更多的开销，需要更多的内存，同时因为多重函数调用略慢，所以最后在必要时使用。</p>
 <h3 id="要不要绑定？"><a href="#要不要绑定？" class="headerlink" title="要不要绑定？"></a>要不要绑定？</h3><p>那什么时候用函数绑定，什么时候用闭包呢？<br>出于性能考虑，<a href="https://alistapart.com/article/getoutbindingsituations" target="_blank" rel="noopener">这篇文章</a>提出了一种应该使用闭包而不是绑定的情况：[^2]</p>
 <blockquote>
@@ -406,7 +406,6 @@
 <p>…lexical scoping, which describes how a parser resolves variable names when functions are nested. The word “lexical” refers to the fact that lexical scoping uses the location where a variable is declared within the source code to determine where that variable is available. Nested functions have access to variables declared in their outer scope.[^3]</p>
 </blockquote>
 <p>即：词法作用域是指变量名被声明的地方，在这个“域”里，变量可以被访问／查找。嵌套的函数可以访问它们外层的作用域。</p>
-<h3 id="函数作用域、块作用域"><a href="#函数作用域、块作用域" class="headerlink" title="函数作用域、块作用域"></a>函数作用域、块作用域</h3><p>函数作用域是一个常见的作用域单元，</p>
 <h3 id="闭包"><a href="#闭包" class="headerlink" title="闭包"></a>闭包</h3><p>闭包就是：函数＋词法环境。<br>这个词法环境包括了闭包创建时所在域的所有局部变量，所以闭包使得函数可以继续访问定义时的词法作用域。回调函数往往都使用了闭包。</p>
 <blockquote>
 <p>A closure is the combination of a function and the lexical environment within which that function was declared. This environment consists of any local variables that were in-scope at the time the closure was created. [^3]</p>
@@ -428,7 +427,7 @@
 <li>当把一个普通函数柯里化时，得到的是一个函数链<code>chain of functions</code></li>
 </ul>
 <p>看来关键就在于这个“反应链”上。最后退远一点，再稍微看一下这个事情</p>
-<h2 id="Functional-Programming"><a href="#Functional-Programming" class="headerlink" title="Functional Programming"></a>Functional Programming</h2><p>点到为止，不一定准确</p>
+<h2 id="函数化编程"><a href="#函数化编程" class="headerlink" title="函数化编程"></a>函数化编程</h2><p>点到为止，不一定准确</p>
 <h3 id="过程分解Procedural-Decompostion-6"><a href="#过程分解Procedural-Decompostion-6" class="headerlink" title="过程分解Procedural Decompostion[^6]"></a>过程分解Procedural Decompostion[^6]</h3><blockquote>
 <p>…we could take any large program and divide it into parts - the first ten lines, the next ten lines, the next ten lines, and so on. Rather, it is crucial that each procedure accomplishes <strong>an identifiable task that can be used as a module in defining other procedures</strong>.</p>
 </blockquote>
@@ -552,7 +551,7 @@
           <p class="site-author-name" itemprop="name">Esther Zhou</p>
            
               <p class="site-description motion-element" itemprop="description"></p>
-          
+           
         </div>
         <nav class="site-state motion-element">
 
@@ -616,7 +615,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#继续说一点函数绑定"><span class="nav-number">1.</span> <span class="nav-text">继续说一点函数绑定</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#函数绑定是…"><span class="nav-number">1.1.</span> <span class="nav-text">函数绑定是…</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#要不要绑定？"><span class="nav-number">1.2.</span> <span class="nav-text">要不要绑定？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#那就顺便看下闭包吧"><span class="nav-number">2.</span> <span class="nav-text">那就顺便看下闭包吧</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#词法作用域"><span class="nav-number">2.1.</span> <span class="nav-text">词法作用域</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#函数作用域、块作用域"><span class="nav-number">2.2.</span> <span class="nav-text">函数作用域、块作用域</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#闭包"><span class="nav-number">2.3.</span> <span class="nav-text">闭包</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#函数柯里化"><span class="nav-number">3.</span> <span class="nav-text">函数柯里化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是currying"><span class="nav-number">3.1.</span> <span class="nav-text">什么是currying</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#柯里化函数"><span class="nav-number">3.2.</span> <span class="nav-text">柯里化函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#无限参数-5"><span class="nav-number">3.3.</span> <span class="nav-text">无限参数[^5]</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#展开数组子项"><span class="nav-number">3.3.1.</span> <span class="nav-text">展开数组子项</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#实现一个可以接受无限参数的add"><span class="nav-number">3.3.2.</span> <span class="nav-text">实现一个可以接受无限参数的add()</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#偏函数"><span class="nav-number">3.4.</span> <span class="nav-text">偏函数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Functional-Programming"><span class="nav-number">4.</span> <span class="nav-text">Functional Programming</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#过程分解Procedural-Decompostion-6"><span class="nav-number">4.1.</span> <span class="nav-text">过程分解Procedural Decompostion[^6]</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用高阶函数的抽象"><span class="nav-number">4.2.</span> <span class="nav-text">使用高阶函数的抽象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#再看一眼柯里化"><span class="nav-number">4.3.</span> <span class="nav-text">再看一眼柯里化</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#继续说一点函数绑定"><span class="nav-number">1.</span> <span class="nav-text">继续说一点函数绑定</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#函数绑定是…"><span class="nav-number">1.1.</span> <span class="nav-text">函数绑定是…</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#要不要绑定？"><span class="nav-number">1.2.</span> <span class="nav-text">要不要绑定？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#那就顺便看下闭包吧"><span class="nav-number">2.</span> <span class="nav-text">那就顺便看下闭包吧</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#词法作用域"><span class="nav-number">2.1.</span> <span class="nav-text">词法作用域</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#闭包"><span class="nav-number">2.2.</span> <span class="nav-text">闭包</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#函数柯里化"><span class="nav-number">3.</span> <span class="nav-text">函数柯里化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是currying"><span class="nav-number">3.1.</span> <span class="nav-text">什么是currying</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#柯里化函数"><span class="nav-number">3.2.</span> <span class="nav-text">柯里化函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#无限参数-5"><span class="nav-number">3.3.</span> <span class="nav-text">无限参数[^5]</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#展开数组子项"><span class="nav-number">3.3.1.</span> <span class="nav-text">展开数组子项</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#实现一个可以接受无限参数的add"><span class="nav-number">3.3.2.</span> <span class="nav-text">实现一个可以接受无限参数的add()</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#偏函数"><span class="nav-number">3.4.</span> <span class="nav-text">偏函数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#函数化编程"><span class="nav-number">4.</span> <span class="nav-text">函数化编程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#过程分解Procedural-Decompostion-6"><span class="nav-number">4.1.</span> <span class="nav-text">过程分解Procedural Decompostion[^6]</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用高阶函数的抽象"><span class="nav-number">4.2.</span> <span class="nav-text">使用高阶函数的抽象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#再看一眼柯里化"><span class="nav-number">4.3.</span> <span class="nav-text">再看一眼柯里化</span></a></li></ol></li></ol></div>
             
 
           </div>
