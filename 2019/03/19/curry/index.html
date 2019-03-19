@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="js,bind,curry,">
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2">
+
+
+
+
+
+
+<meta name="description" content="上次详细介绍了bind()函数和一系列相关的概念。这次继续跟着小红书和文档和谷哥看一下函数绑定，和与函数绑定紧密相关的函数柯里化(function currying)">
+<meta name="keywords" content="js,bind,curry">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从函数绑定到函数柯里化">
+<meta property="og:url" content="http://yoursite.com/2019/03/19/curry/index.html">
+<meta property="og:site_name" content="Technical Blog">
+<meta property="og:description" content="上次详细介绍了bind()函数和一系列相关的概念。这次继续跟着小红书和文档和谷哥看一下函数绑定，和与函数绑定紧密相关的函数柯里化(function currying)">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-19T08:01:07.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从函数绑定到函数柯里化">
+<meta name="twitter:description" content="上次详细介绍了bind()函数和一系列相关的概念。这次继续跟着小红书和文档和谷哥看一下函数绑定，和与函数绑定紧密相关的函数柯里化(function currying)">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/03/19/curry/">
+
+
+
+
+
+  <title>从函数绑定到函数柯里化 | Technical Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Technical Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">A Front-End Notebook</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/19/curry/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Esther Zhou">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Technical Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从函数绑定到函数柯里化</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-19T11:06:20+08:00">
+                2019-03-19
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2019-03-19T16:01:07+08:00">
+                2019-03-19
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>上次详细介绍了<code>bind()</code>函数和一系列相关的概念。这次继续跟着小红书和文档和谷哥看一下函数绑定，和与函数绑定紧密相关的函数柯里化(function currying)</p>
+<a id="more"></a>
+<h2 id="继续说一点函数绑定"><a href="#继续说一点函数绑定" class="headerlink" title="继续说一点函数绑定"></a>继续说一点函数绑定</h2><h3 id="函数绑定是…"><a href="#函数绑定是…" class="headerlink" title="函数绑定是…"></a>函数绑定是…</h3><blockquote>
+<p>函数绑定要创建一个函数，可以在特定的this环境中以指定参数调用另一个函数。该技巧常常和回调函数与事件处理程序一起使用，以便在将函数作为变量传递的同时保留代码执行环境。[^1]</p>
+</blockquote>
+<p>也就是为了避免隐式绑定的<code>this</code>在调用丢失(回到默认绑定)上，通过显式绑定或者闭包来保存执行环境。过多的闭包会导致代码难以理解和调试，所以我们常常会倾向于使用<code>bind()</code>函数来绑定这个执行环境。书里给了一个简单的利用闭包和<code>apply()</code>实现的<code>bind()</code>函数：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bind</span>(<span class="params">fn, context</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> fn.apply(context, <span class="built_in">arguments</span>);</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在支持ES5的浏览器如IE9+, Chrome, Firefox4+中可以直接使用原生的<code>bind()</code>方法。</p>
+<p>但是被绑定的函数与普通函数相比，有更多的开销，需要更多的内存，同时因为多重函数调用略慢，所以最后在必要时使用。</p>
+<h3 id="要不要绑定？"><a href="#要不要绑定？" class="headerlink" title="要不要绑定？"></a>要不要绑定？</h3><p>那什么时候用函数绑定，什么时候用闭包呢？<br>出于性能考虑，<a href="https://alistapart.com/article/getoutbindingsituations" target="_blank" rel="noopener">这篇文章</a>提出了一种应该使用闭包而不是绑定的情况：[^2]</p>
+<blockquote>
+<p>…some code within a method relies on an anonymous function passed by reference to work. That anonymous function needs to access the surrounding method’s <strong>this</strong> keyword.</p>
+</blockquote>
+<p>如果某个方法中的代码需要依赖于匿名函数传进来的引用，而匿名函数就需要能获取该环境中的<code>this</code>。</p>
+<p>举一个🌰：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ...</span></span><br><span class="line">processItems: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.items.each(<span class="function"><span class="keyword">function</span>(<span class="params">item</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// Process item…</span></span><br><span class="line">    <span class="comment">// 匿名函数这里的this发生绑定丢失，this回到默认绑定</span></span><br><span class="line">    <span class="keyword">this</span>.markItemAsProcessed(item);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;,</span><br><span class="line"><span class="comment">// ...</span></span><br></pre></td></tr></table></figure></p>
+<p>如果使用函数绑定来修复的话，代码可以写成：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ...</span></span><br><span class="line">processItems: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.items.each(<span class="function"><span class="keyword">function</span>(<span class="params">item</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// Process item…</span></span><br><span class="line">    <span class="keyword">this</span>.markItemAsProcessed(item);</span><br><span class="line">  &#125;.bind(<span class="keyword">this</span>));</span><br><span class="line">&#125;,</span><br><span class="line"><span class="comment">// ...</span></span><br></pre></td></tr></table></figure></p>
+<p>之前讲过bind()的作用机制，它会先调用bind()创建的这个bounding function，然后去调用被包装的函数对象，所以实际上发生了两次调用。而对函数调用是非常消耗性能的。</p>
+<p>这个时候如果使用闭包就会更合适：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ...</span></span><br><span class="line">processItems: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> that = <span class="keyword">this</span>;</span><br><span class="line">  <span class="keyword">this</span>.items.each(<span class="function"><span class="keyword">function</span>(<span class="params">item</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// Process item</span></span><br><span class="line">    that.markItemAsProcessed(item);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;,</span><br><span class="line"><span class="comment">// ...</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="那就顺便看下闭包吧"><a href="#那就顺便看下闭包吧" class="headerlink" title="那就顺便看下闭包吧"></a>那就顺便看下闭包吧</h2><h3 id="词法作用域"><a href="#词法作用域" class="headerlink" title="词法作用域"></a>词法作用域</h3><p>关键概念：编译器，变量名，嵌套函数</p>
+<blockquote>
+<p>…lexical scoping, which describes how a parser resolves variable names when functions are nested. The word “lexical” refers to the fact that lexical scoping uses the location where a variable is declared within the source code to determine where that variable is available. Nested functions have access to variables declared in their outer scope.[^3]</p>
+</blockquote>
+<p>即：词法作用域是指变量名被声明的地方，在这个“域”里，变量可以被访问／查找。嵌套的函数可以访问它们外层的作用域。</p>
+<h3 id="函数作用域、块作用域"><a href="#函数作用域、块作用域" class="headerlink" title="函数作用域、块作用域"></a>函数作用域、块作用域</h3><p>函数作用域是一个常见的作用域单元，</p>
+<h3 id="闭包"><a href="#闭包" class="headerlink" title="闭包"></a>闭包</h3><p>闭包就是：函数＋词法环境。<br>这个词法环境包括了闭包创建时所在域的所有局部变量，所以闭包使得函数可以继续访问定义时的词法作用域。回调函数往往都使用了闭包。</p>
+<blockquote>
+<p>A closure is the combination of a function and the lexical environment within which that function was declared. This environment consists of any local variables that were in-scope at the time the closure was created. [^3]</p>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">makeFunc</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> name = <span class="string">'Mozilla'</span>;</span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">displayName</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(name);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> displayName;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> myFunc = makeFunc();</span><br><span class="line">myFunc();  <span class="comment">// 'Mozilla'</span></span><br></pre></td></tr></table></figure>
+<h2 id="函数柯里化"><a href="#函数柯里化" class="headerlink" title="函数柯里化"></a>函数柯里化</h2><p>函数绑定和函数柯里化（function currying）的基本方法都是使用一个闭包返回一个函数，区别在于，当curry函数被调用时，返回的函数还要设置一些传入的参数。</p>
+<h3 id="什么是currying"><a href="#什么是currying" class="headerlink" title="什么是currying"></a>什么是currying</h3><blockquote>
+<p>In mathematics and computer science, currying is the technique of translating the evaluation of a function that takes multiple arguments into evaluating a sequence of functions, each with a single argument. [^4]</p>
+</blockquote>
+<p>柯里化就是：接收多个参数的一个函数 －&gt; 每次接收一个参数的一系列函数</p>
+<h3 id="柯里化函数"><a href="#柯里化函数" class="headerlink" title="柯里化函数"></a>柯里化函数</h3><p>柯里化函数通常由以下步骤动态创建：调用另一个函数并为它传入要柯里化的函数和必要参数。</p>
+<p>以下代码实现参考<a href="https://www.jianshu.com/p/5e1899fe7d6b" target="_blank" rel="noopener">深入详解函数的柯里化</a>。<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 第一个参数是要进行柯里化的函数，其它参数是要传入的值</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">curry</span>(<span class="params">fn, args</span>) </span>&#123;</span><br><span class="line">	<span class="comment">// 获取来自外部函数传入的参数</span></span><br><span class="line">	<span class="keyword">var</span> arity = fn.length;</span><br><span class="line">    <span class="keyword">var</span> args = args || [];</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    	<span class="comment">// 存放来自内部函数的参数</span></span><br><span class="line">        <span class="keyword">var</span> innerArgs = <span class="built_in">Array</span>.prototype.slice.call(<span class="built_in">arguments</span>);</span><br><span class="line">        <span class="comment">// 合并</span></span><br><span class="line">        <span class="keyword">var</span> finalArgs = args.concat(innerArgs);</span><br><span class="line">        <span class="comment">// 如果参数个数小于最初的func.length，则递归调用，继续收集参数</span></span><br><span class="line">        <span class="keyword">if</span> (finalArgs.length &lt; arity) &#123;</span><br><span class="line">            <span class="keyword">return</span> curry.call(<span class="keyword">this</span>, fn, finalArgs);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 参数收集完毕，则执行fn</span></span><br><span class="line">        <span class="keyword">return</span> fn.apply(<span class="keyword">this</span>, finalArgs);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>一个🌰：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">_map</span>(<span class="params">func, array</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> array.map(func);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> _getNewArray = createCurry(_map);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> getNewArray = _getNewArray(<span class="function"><span class="keyword">function</span>(<span class="params">item</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> item * <span class="number">100</span> + <span class="string">'%'</span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">getNewArray([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">0.12</span>]);   <span class="comment">// ['100%', '200%', '300%', '12%'];</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="无限参数-5"><a href="#无限参数-5" class="headerlink" title="无限参数[^5]"></a>无限参数[^5]</h3><h4 id="展开数组子项"><a href="#展开数组子项" class="headerlink" title="展开数组子项"></a>展开数组子项</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">add</span>(<span class="params">a, b, c, d</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a + b + c + d;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> args = [<span class="number">1</span>, <span class="number">3</span>, <span class="number">100</span>, <span class="number">1</span>];</span><br><span class="line">add.apply(<span class="literal">null</span>, args);  <span class="comment">// 105</span></span><br><span class="line">add(...args);  <span class="comment">// 105</span></span><br></pre></td></tr></table></figure>
+<h4 id="实现一个可以接受无限参数的add"><a href="#实现一个可以接受无限参数的add" class="headerlink" title="实现一个可以接受无限参数的add()"></a>实现一个可以接受无限参数的add()</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">add</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 第一次执行时，定义一个数组专门用来存储所有的参数</span></span><br><span class="line">    <span class="keyword">var</span> _args = [].slice.call(<span class="built_in">arguments</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 在内部声明一个函数，利用闭包的特性保存_args并收集所有的参数值</span></span><br><span class="line">    <span class="keyword">var</span> adder = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> _adder = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">            <span class="comment">// [].push.apply(_args, [].slice.call(arguments));</span></span><br><span class="line">            _args.push(...arguments);</span><br><span class="line">            <span class="keyword">return</span> _adder;</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 利用隐式转换的特性，当最后执行时隐式转换，并计算最终的值返回</span></span><br><span class="line">        _adder.toString = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> _args.reduce(<span class="function"><span class="keyword">function</span> (<span class="params">a, b</span>) </span>&#123;</span><br><span class="line">                <span class="keyword">return</span> a + b;</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> _adder;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// return adder.apply(null, _args);</span></span><br><span class="line">    <span class="keyword">return</span> adder(..._args);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> a = add(<span class="number">1</span>)(<span class="number">2</span>)(<span class="number">3</span>)(<span class="number">4</span>);   <span class="comment">// f 10</span></span><br><span class="line"><span class="keyword">var</span> b = add(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>);   <span class="comment">// f 10</span></span><br><span class="line"><span class="keyword">var</span> c = add(<span class="number">1</span>, <span class="number">2</span>)(<span class="number">3</span>, <span class="number">4</span>);   <span class="comment">// f 10</span></span><br><span class="line"><span class="keyword">var</span> d = add(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)(<span class="number">4</span>);   <span class="comment">// f 10</span></span><br></pre></td></tr></table></figure>
+<h3 id="偏函数"><a href="#偏函数" class="headerlink" title="偏函数"></a>偏函数</h3><p>上次写bind()时，其中一个作用就是写偏函数，可以给一个函数一部分给定的初始参数。</p>
+<ul>
+<li>当把一个普通函数绑定成一个偏函数时，创建的是一个接受其余参数的函数</li>
+<li>当把一个普通函数柯里化时，得到的是一个函数链<code>chain of functions</code></li>
+</ul>
+<p>看来关键就在于这个“反应链”上。最后退远一点，再稍微看一下这个事情</p>
+<h2 id="Functional-Programming"><a href="#Functional-Programming" class="headerlink" title="Functional Programming"></a>Functional Programming</h2><p>点到为止，不一定准确</p>
+<h3 id="过程分解Procedural-Decompostion-6"><a href="#过程分解Procedural-Decompostion-6" class="headerlink" title="过程分解Procedural Decompostion[^6]"></a>过程分解Procedural Decompostion[^6]</h3><blockquote>
+<p>…we could take any large program and divide it into parts - the first ten lines, the next ten lines, the next ten lines, and so on. Rather, it is crucial that each procedure accomplishes <strong>an identifiable task that can be used as a module in defining other procedures</strong>.</p>
+</blockquote>
+<p>在定义这个过程时，实现的具体细节被封装起来成为一个black box，但是可以对外使用。</p>
+<ul>
+<li>绑定变量bound variables：每个声明变量被绑定在自己相应的作用域上</li>
+<li>块状化block structure：将大型项目拆分成块</li>
+</ul>
+<h3 id="使用高阶函数的抽象"><a href="#使用高阶函数的抽象" class="headerlink" title="使用高阶函数的抽象"></a>使用高阶函数的抽象</h3><p>将过程作为参数和返回值，从而创建更为普遍进一步抽象<code>generalize them to create more powerful abstraction</code>。</p>
+<h3 id="再看一眼柯里化"><a href="#再看一眼柯里化" class="headerlink" title="再看一眼柯里化"></a>再看一眼柯里化</h3><p>函数柯里化最重要的是抽象分块的思想，把从A-B-C的过程每一步都按顺序分别封装起来，这样函数复用率高，思路也清晰。</p>
+<p>今天就到这里吧！</p>
+<hr>
+<p>参考资料：<br>[^1]: Javascript高级程序设计。高级技巧。<br>[^2]: Getting Out of Binding Situations in JavaScript. <a href="https://alistapart.com/article/getoutbindingsituations" target="_blank" rel="noopener">https://alistapart.com/article/getoutbindingsituations</a><br>[^3]: MDN web docs, closure. <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures" target="_blank" rel="noopener">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures</a><br>[^4]: Wikipedia, currying. <a href="https://en.wikipedia.org/wiki/Currying" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Currying</a><br>[^5]: 前端基础进阶（八）：深入详解函数的柯里化. <a href="https://www.jianshu.com/p/5e1899fe7d6b" target="_blank" rel="noopener">https://www.jianshu.com/p/5e1899fe7d6b</a><br>[^6]: Structure and Interpretation of Computer Programs. Building Abstractions with Procedures.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/js/" rel="tag"># js</a>
+          
+            <a href="/tags/bind/" rel="tag"># bind</a>
+          
+            <a href="/tags/curry/" rel="tag"># curry</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/18/bind/" rel="next" title="读下文档之'Bind( )'">
+                <i class="fa fa-chevron-left"></i> 读下文档之'Bind( )'
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/avatar.gif" alt="Esther Zhou">
+          <p class="site-author-name" itemprop="name">Esther Zhou</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#继续说一点函数绑定"><span class="nav-number">1.</span> <span class="nav-text">继续说一点函数绑定</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#函数绑定是…"><span class="nav-number">1.1.</span> <span class="nav-text">函数绑定是…</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#要不要绑定？"><span class="nav-number">1.2.</span> <span class="nav-text">要不要绑定？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#那就顺便看下闭包吧"><span class="nav-number">2.</span> <span class="nav-text">那就顺便看下闭包吧</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#词法作用域"><span class="nav-number">2.1.</span> <span class="nav-text">词法作用域</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#函数作用域、块作用域"><span class="nav-number">2.2.</span> <span class="nav-text">函数作用域、块作用域</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#闭包"><span class="nav-number">2.3.</span> <span class="nav-text">闭包</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#函数柯里化"><span class="nav-number">3.</span> <span class="nav-text">函数柯里化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是currying"><span class="nav-number">3.1.</span> <span class="nav-text">什么是currying</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#柯里化函数"><span class="nav-number">3.2.</span> <span class="nav-text">柯里化函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#无限参数-5"><span class="nav-number">3.3.</span> <span class="nav-text">无限参数[^5]</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#展开数组子项"><span class="nav-number">3.3.1.</span> <span class="nav-text">展开数组子项</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#实现一个可以接受无限参数的add"><span class="nav-number">3.3.2.</span> <span class="nav-text">实现一个可以接受无限参数的add()</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#偏函数"><span class="nav-number">3.4.</span> <span class="nav-text">偏函数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Functional-Programming"><span class="nav-number">4.</span> <span class="nav-text">Functional Programming</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#过程分解Procedural-Decompostion-6"><span class="nav-number">4.1.</span> <span class="nav-text">过程分解Procedural Decompostion[^6]</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用高阶函数的抽象"><span class="nav-number">4.2.</span> <span class="nav-text">使用高阶函数的抽象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#再看一眼柯里化"><span class="nav-number">4.3.</span> <span class="nav-text">再看一眼柯里化</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-book"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Esther Zhou</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1717,7 +1717,7 @@ pre .javascript .function {
   margin-top: 0;
 }
 .site-author-image {
-  display: block;
+  display: none;
   margin: 0 auto;
   padding: 2px;
   max-width: 96px;
@@ -1807,7 +1807,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #7762ff;
+  background: #8c42ff;
 }
 .links-of-blogroll {
   font-size: 13px;
@@ -2645,4 +2645,8 @@ embed {
 }
 .links-of-blogroll-inline .links-of-blogroll-item {
   display: inline-block;
+}
+code {
+  color: #e96900;
+  background: #f8f8f8;
 }
