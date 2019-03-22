@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="js,shallow copy,deep copy,">
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2">
+
+
+
+
+
+
+<meta name="description" content="在开始将创建对象的设计模式前，先说一说接着上次的继承顺便来看看深复制和浅复制">
+<meta name="keywords" content="js,shallow copy,deep copy">
+<meta property="og:type" content="article">
+<meta property="og:title" content="“深复制”与“浅复制”">
+<meta property="og:url" content="http://yoursite.com/2019/03/22/clone/index.html">
+<meta property="og:site_name" content="Technical Blog">
+<meta property="og:description" content="在开始将创建对象的设计模式前，先说一说接着上次的继承顺便来看看深复制和浅复制">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://upload.wikimedia.org/wikipedia/en/thumb/6/6c/Pre_shallow_deep_copy.svg/180px-Pre_shallow_deep_copy.svg.png">
+<meta property="og:image" content="https://upload.wikimedia.org/wikipedia/en/thumb/3/3e/Shallow_copy_in_progress.svg/180px-Shallow_copy_in_progress.svg.png">
+<meta property="og:image" content="https://upload.wikimedia.org/wikipedia/en/thumb/e/e1/Shallow_copy_done.svg/180px-Shallow_copy_done.svg.png">
+<meta property="og:image" content="https://upload.wikimedia.org/wikipedia/en/thumb/6/6c/Pre_shallow_deep_copy.svg/180px-Pre_shallow_deep_copy.svg.png">
+<meta property="og:image" content="https://upload.wikimedia.org/wikipedia/en/thumb/5/5f/Deep_copy_in_progress.svg/180px-Deep_copy_in_progress.svg.png">
+<meta property="og:image" content="https://upload.wikimedia.org/wikipedia/en/thumb/0/00/Deep_copy_done.svg/180px-Deep_copy_done.svg.png">
+<meta property="og:updated_time" content="2019-03-22T06:35:18.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="“深复制”与“浅复制”">
+<meta name="twitter:description" content="在开始将创建对象的设计模式前，先说一说接着上次的继承顺便来看看深复制和浅复制">
+<meta name="twitter:image" content="https://upload.wikimedia.org/wikipedia/en/thumb/6/6c/Pre_shallow_deep_copy.svg/180px-Pre_shallow_deep_copy.svg.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/03/22/clone/">
+
+
+
+
+
+  <title>“深复制”与“浅复制” | Technical Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Technical Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">A Front-End Notebook</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/22/clone/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Esther Zhou">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Technical Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">“深复制”与“浅复制”</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-22T12:55:47+08:00">
+                2019-03-22
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2019-03-22T14:35:18+08:00">
+                2019-03-22
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在开始将创建对象的设计模式前，先说一说接着上次的继承顺便来看看深复制和浅复制</p>
+<a id="more"></a>
+<h2 id="浅复制Shallow-Copy"><a href="#浅复制Shallow-Copy" class="headerlink" title="浅复制Shallow Copy"></a>浅复制Shallow Copy</h2><h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><p>如果A对象中有一个引用，比如指向一个内存地址memory address。那么把它复制到B时，只复制这个引用而不是真正的值。此时B和A将指向同一个内存地址memory address。因为它们包含对同一个地址的引用，之后对任意一个进行修改，另一个也会受到影响。如图：</p>
+<div style="display: inline-block;"><br><img src="https://upload.wikimedia.org/wikipedia/en/thumb/6/6c/Pre_shallow_deep_copy.svg/180px-Pre_shallow_deep_copy.svg.png" alt="浅复制1"><br><img src="https://upload.wikimedia.org/wikipedia/en/thumb/3/3e/Shallow_copy_in_progress.svg/180px-Shallow_copy_in_progress.svg.png" alt="浅复制2"><br><img src="https://upload.wikimedia.org/wikipedia/en/thumb/e/e1/Shallow_copy_done.svg/180px-Shallow_copy_done.svg.png" alt="浅复制3"><br></div>
+
+<p>在javascript中，数组和对象的复制默认都是浅复制。即赋值操作后，两个变量指向同一个内存地址。</p>
+<h3 id="对象的浅复制"><a href="#对象的浅复制" class="headerlink" title="对象的浅复制"></a>对象的浅复制</h3><h4 id="原型链"><a href="#原型链" class="headerlink" title="原型链"></a>原型链</h4><p>也就是之前Douglas Crockford提出的原型式继承，相当于把父对象的属性shallow copy给了子对象。<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">object</span>(<span class="params">p</span>) </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">F</span>(<span class="params"></span>)</span>&#123;&#125;;</span><br><span class="line">  F.prototype = p;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> F();</span><br><span class="line">&#125;</span><br><span class="line"><span class="string">`</span></span><br></pre></td></tr></table></figure></p>
+<p>等同于ECMAScript 5中<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> copy = <span class="built_in">Object</span>.create(p)</span><br></pre></td></tr></table></figure></p>
+<p>注意：这里其实只是对父对象的继承，一些看法不认为这是复制</p>
+<h4 id="遍历"><a href="#遍历" class="headerlink" title="遍历"></a>遍历</h4><p>遍历父对象的属性，全部复制给子对象。<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">extendCopy</span>(<span class="params">p</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> copy = &#123;&#125;;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> attr <span class="keyword">in</span> p) &#123;</span><br><span class="line">      copy[attr] = p[attr]</span><br><span class="line">  <span class="keyword">return</span> copy</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>也可以遍历父对象prototype中的所有属性</p>
+<h2 id="深复制Deep-Copy"><a href="#深复制Deep-Copy" class="headerlink" title="深复制Deep Copy"></a>深复制Deep Copy</h2><h3 id="基本概念-1"><a href="#基本概念-1" class="headerlink" title="基本概念"></a>基本概念</h3><p>把A复制给B时，实现数组对象等真正的值的复制。之后的任何修改，彼此互不影响。如图：</p>
+<div style="display: inline-block;"><br><img src="https://upload.wikimedia.org/wikipedia/en/thumb/6/6c/Pre_shallow_deep_copy.svg/180px-Pre_shallow_deep_copy.svg.png" alt="深复制1"><br><img src="https://upload.wikimedia.org/wikipedia/en/thumb/5/5f/Deep_copy_in_progress.svg/180px-Deep_copy_in_progress.svg.png" alt="深复制2"><br><img src="https://upload.wikimedia.org/wikipedia/en/thumb/0/00/Deep_copy_done.svg/180px-Deep_copy_done.svg.png" alt="深复制3"><br></div>
+
+
+
+<h3 id="数组的深复制"><a href="#数组的深复制" class="headerlink" title="数组的深复制"></a>数组的深复制</h3><h4 id="当数组不含有引用类型时"><a href="#当数组不含有引用类型时" class="headerlink" title="当数组不含有引用类型时"></a>当数组不含有引用类型时</h4><p>以下方法将返回新的数组，但如果数组中有引用类型时，会指向同一个地址<br>“Nested objects are still copied as references”<br><code>slice()</code>：<code>var copy = p.slice(0)</code><br><code>concat()</code>: <code>var copy = p.concat()</code><br>ES6 <code>...</code>: <code>var copy = [...p]</code></p>
+<h4 id="递归"><a href="#递归" class="headerlink" title="递归"></a>递归</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">deepCopy</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> copy = copy || [];</span><br><span class="line">  <span class="keyword">if</span> (obj <span class="keyword">instanceof</span> <span class="built_in">Array</span>) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>, len = obj.length; i &lt; len; i++) &#123;</span><br><span class="line">      copy[i] = deepCopy(obj[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> copy;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="对象的深复制"><a href="#对象的深复制" class="headerlink" title="对象的深复制"></a>对象的深复制</h3><h4 id="json安全的对象"><a href="#json安全的对象" class="headerlink" title="json安全的对象"></a>json安全的对象</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> copy = <span class="built_in">JSON</span>.parse(<span class="built_in">JSON</span>.stringify(p))</span><br></pre></td></tr></table></figure>
+<p>同样，也可以使用jQuery库来实现</p>
+<h4 id="递归-1"><a href="#递归-1" class="headerlink" title="递归"></a>递归</h4><p>判断子对象是否有引用类型，否则直接浅复制<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">deepCopy</span>(<span class="params">obj, copy</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> copy = copy || &#123;&#125;;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> prop <span class="keyword">in</span> p) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> p[i] === <span class="string">'object'</span>) &#123;</span><br><span class="line">      copy[i] = (<span class="built_in">Array</span>.isArray(p[i])) ? [] : &#123;&#125;;</span><br><span class="line">      deepCopy(p[i], copy[i]);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      copy[i] = p[i];</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> copy;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="对6种基本型的深复制"><a href="#对6种基本型的深复制" class="headerlink" title="对6种基本型的深复制"></a>对6种基本型的深复制</h3><p>注：String, Number, Boolean是immutable的所以只有浅复制就可以了。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">clone</span>(<span class="params">obj</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> copy;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Handle the 3 simple types, and null or undefined</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="literal">null</span> == obj || <span class="string">"object"</span> != <span class="keyword">typeof</span> obj) <span class="keyword">return</span> obj;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Handle Date</span></span><br><span class="line">    <span class="keyword">if</span> (obj <span class="keyword">instanceof</span> <span class="built_in">Date</span>) &#123;</span><br><span class="line">        copy = <span class="keyword">new</span> <span class="built_in">Date</span>();</span><br><span class="line">        copy.setTime(obj.getTime());</span><br><span class="line">        <span class="keyword">return</span> copy;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Handle Array</span></span><br><span class="line">    <span class="keyword">if</span> (obj <span class="keyword">instanceof</span> <span class="built_in">Array</span>) &#123;</span><br><span class="line">        copy = [];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>, len = obj.length; i &lt; len; i++) &#123;</span><br><span class="line">            copy[i] = clone(obj[i]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> copy;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Handle Object</span></span><br><span class="line">    <span class="keyword">if</span> (obj <span class="keyword">instanceof</span> <span class="built_in">Object</span>) &#123;</span><br><span class="line">        copy = &#123;&#125;;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">var</span> attr <span class="keyword">in</span> obj) &#123;</span><br><span class="line">            <span class="keyword">if</span> (obj.hasOwnProperty(attr))&#123;</span><br><span class="line">              copy[attr] = clone(obj[attr]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> copy;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">"Unable to copy obj! Its type isn't supported."</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<p style="font-size: 0.8em"><br>参考文献: <br><br>[1] [How do I correctly clone a JavaScript object?]<a href="https://stackoverflow.com/questions/728360/how-do-i-correctly-clone-a-javascript-object" target="_blank" rel="noopener">https://stackoverflow.com/questions/728360/how-do-i-correctly-clone-a-javascript-object</a> <br><br>[2] [Javascript面向对象编程（三）：非构造函数的继承. 阮一峰.]<a href="http://www.ruanyifeng.com/blog/2010/05/object-oriented_javascript_inheritance_continued.html" target="_blank" rel="noopener">http://www.ruanyifeng.com/blog/2010/05/object-oriented_javascript_inheritance_continued.html</a><br></p>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/js/" rel="tag"># js</a>
+          
+            <a href="/tags/shallow-copy/" rel="tag"># shallow copy</a>
+          
+            <a href="/tags/deep-copy/" rel="tag"># deep copy</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/20/Inherit/" rel="next" title="设计模式（一）：从原型到继承">
+                <i class="fa fa-chevron-left"></i> 设计模式（一）：从原型到继承
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/avatar.gif" alt="Esther Zhou">
+          <p class="site-author-name" itemprop="name">Esther Zhou</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">11</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#浅复制Shallow-Copy"><span class="nav-number">1.</span> <span class="nav-text">浅复制Shallow Copy</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本概念"><span class="nav-number">1.1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对象的浅复制"><span class="nav-number">1.2.</span> <span class="nav-text">对象的浅复制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#原型链"><span class="nav-number">1.2.1.</span> <span class="nav-text">原型链</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#遍历"><span class="nav-number">1.2.2.</span> <span class="nav-text">遍历</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#深复制Deep-Copy"><span class="nav-number">2.</span> <span class="nav-text">深复制Deep Copy</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本概念-1"><span class="nav-number">2.1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数组的深复制"><span class="nav-number">2.2.</span> <span class="nav-text">数组的深复制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#当数组不含有引用类型时"><span class="nav-number">2.2.1.</span> <span class="nav-text">当数组不含有引用类型时</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#递归"><span class="nav-number">2.2.2.</span> <span class="nav-text">递归</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对象的深复制"><span class="nav-number">2.3.</span> <span class="nav-text">对象的深复制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#json安全的对象"><span class="nav-number">2.3.1.</span> <span class="nav-text">json安全的对象</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#递归-1"><span class="nav-number">2.3.2.</span> <span class="nav-text">递归</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对6种基本型的深复制"><span class="nav-number">2.4.</span> <span class="nav-text">对6种基本型的深复制</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-book"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Esther Zhou</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
