@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="js,design pattern,oop,">
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2">
+
+
+
+
+
+
+<meta name="description" content="写了几天项目后，对设计模式有了非常初步地了解了，开始记录下学习设计模式的资料和理解。今天是最简单的也是非常常用的一个模式：单例模式(singleton)。">
+<meta name="keywords" content="js,design pattern,oop">
+<meta property="og:type" content="article">
+<meta property="og:title" content="设计模式（二）：单例模式">
+<meta property="og:url" content="http://yoursite.com/2019/04/01/singleton/index.html">
+<meta property="og:site_name" content="Technical Blog">
+<meta property="og:description" content="写了几天项目后，对设计模式有了非常初步地了解了，开始记录下学习设计模式的资料和理解。今天是最简单的也是非常常用的一个模式：单例模式(singleton)。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-04-02T12:37:54.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="设计模式（二）：单例模式">
+<meta name="twitter:description" content="写了几天项目后，对设计模式有了非常初步地了解了，开始记录下学习设计模式的资料和理解。今天是最简单的也是非常常用的一个模式：单例模式(singleton)。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/04/01/singleton/">
+
+
+
+
+
+  <title>设计模式（二）：单例模式 | Technical Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Technical Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">A Front-End Notebook</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/01/singleton/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Esther Zhou">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Technical Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">设计模式（二）：单例模式</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-01T20:30:18+08:00">
+                2019-04-01
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2019-04-02T20:37:54+08:00">
+                2019-04-02
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>写了几天项目后，对设计模式有了非常初步地了解了，开始记录下学习设计模式的资料和理解。今天是最简单的也是非常常用的一个模式：单例模式(singleton)。</p>
+<a id="more"></a>
+<p>想给之后的学习打一个框架，希望之后从以下三个大方面对设计模式进行学习：是什么，怎么做，有什么用。<br>小方面包括：正式概念，非正式的大白话理解，js实现的结构，核心，ES6的实现，应用场景，举个例子。想到了新的再加上。</p>
+<h2 id="singleton是什么"><a href="#singleton是什么" class="headerlink" title="singleton是什么"></a>singleton是什么</h2><h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>单例模式的定义如下：</p>
+<blockquote>
+<p>Ensure a class has only one instance and provide a global point of access to it.</p>
+</blockquote>
+<p>即该类有且仅有一个实例，并对全局环境提供一个入口。这个唯一的实例就叫做：singleton，单例。<br>这个模式的命名非常的直白简单。</p>
+<p>该模式属于创建型，也就是用于创建实例对象。</p>
+<h3 id="一点概述"><a href="#一点概述" class="headerlink" title="一点概述"></a>一点概述</h3><p>单例模式是js中非常重要的一个模式，因为在js中过多地使用全局变量是一件不好的事情：和别人的代码冲突，难以维护等等。这时候单例模式就派上用场了。</p>
+<p>所以单例模式的主要作用就是：限制全局变量和访问入口，管理组织一组代码。</p>
+<p>我们先来看看js中单例模式的实现的基本骨架（也很简单）。</p>
+<h2 id="js的实现"><a href="#js的实现" class="headerlink" title="js的实现"></a>js的实现</h2><h3 id="对象字面量"><a href="#对象字面量" class="headerlink" title="对象字面量"></a>对象字面量</h3><p>对象字面量的创建就是单例模式的最基本的实现方式。<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// basic singleton</span></span><br><span class="line"><span class="keyword">let</span> Singleton = &#123;</span><br><span class="line">  attribute1: <span class="string">"value1"</span>,</span><br><span class="line">  attribute2: <span class="string">"value2"</span>,</span><br><span class="line"></span><br><span class="line">  methods1: <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>该对象中所有的变量都必须通过<code>Singleton</code>这个变量名(入口)来访问（点运算符或方括号）。</p>
+<h3 id="闭包"><a href="#闭包" class="headerlink" title="闭包"></a>闭包</h3><p>使用一个IIFE(立即执行函数)<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> Singleton = (<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="comment">//some code here</span></span><br><span class="line">  <span class="keyword">return</span> &#123;&#125;;</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure></p>
+<p>此时，该立即执行函数中的变量和方法也只有当对外提供入口时才能访问如将他们作为返回值返回，所以不会污染全局环境。</p>
+<h2 id="一些应用"><a href="#一些应用" class="headerlink" title="一些应用"></a>一些应用</h2><h3 id="命名空间namespace"><a href="#命名空间namespace" class="headerlink" title="命名空间namespace"></a>命名空间namespace</h3><p>命名空间就是用来解决全局变量冲突的问题，我们完全可以只暴露一个对象名，将变量作为该对象的属性，将方法作为该对象的方法，这样就能大大减少全局变量的个数。<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Using a namespace. */</span></span><br><span class="line"><span class="keyword">var</span> MyNamespace = &#123;</span><br><span class="line"><span class="comment">// some variables and methods</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>注：命名空间的命名应该描述出组织的这块代码的功能，便于管理。<br>组织自己的代码时，也可以把他们都放在一个变量名中：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* GiantCorp namespace. */</span></span><br><span class="line"><span class="keyword">var</span> GiantCorp = &#123;&#125;;</span><br><span class="line">GiantCorp.Common = &#123;</span><br><span class="line"><span class="comment">// A singleton with common methods used by all objects and modules.</span></span><br><span class="line">&#125;;</span><br><span class="line">GiantCorp.ErrorCodes = &#123;</span><br><span class="line"><span class="comment">// An object literal used to store data.</span></span><br><span class="line">&#125;;</span><br><span class="line">GiantCorp.PageHandler = &#123;</span><br><span class="line"><span class="comment">// A singleton with page specific methods and attributes.</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<h3 id="静态变量"><a href="#静态变量" class="headerlink" title="静态变量"></a>静态变量</h3><h4 id="对象字面量-1"><a href="#对象字面量-1" class="headerlink" title="对象字面量"></a>对象字面量</h4><p>可以通过<code>_</code>来定义私有变量：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GiantCorp.DataParser = &#123;</span><br><span class="line">  _privateMethod: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="comment">// implementation</span></span><br><span class="line">  &#125;,</span><br><span class="line">  </span><br><span class="line">  _privateAttr: <span class="string">"value"</span>;</span><br><span class="line">  </span><br><span class="line">	publicMethod: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="闭包-1"><a href="#闭包-1" class="headerlink" title="闭包"></a>闭包</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">MyNamespace.Singleton = (<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="comment">// Private members.</span></span><br><span class="line">	<span class="keyword">var</span> privateAttribute1 = <span class="literal">false</span>;</span><br><span class="line">  <span class="keyword">var</span> privateAttribute2 = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">privateMethod1</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">	&#125;</span><br><span class="line">  </span><br><span class="line">	<span class="keyword">return</span> &#123; <span class="comment">// Public members.</span></span><br><span class="line">    publicAttribute1: <span class="literal">true</span>,</span><br><span class="line">    publicMethod1: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">		publicMethod2: <span class="function"><span class="keyword">function</span>(<span class="params">args</span>) </span>&#123;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;;</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
+<p>这种形式的单例模式也被称为<a href="http://www.adequatelygood.com/JavaScript-Module-Pattern-In-Depth.html" target="_blank" rel="noopener">模块模式(module pattern)</a>; 因为它模块化了一组相关的方法和属性，并给了他们一个命名空间。</p>
+<h3 id="惰性单例-lazy-instantiation"><a href="#惰性单例-lazy-instantiation" class="headerlink" title="惰性单例 lazy instantiation"></a>惰性单例 lazy instantiation</h3><p>由于使用了IIFE，这些单例都会在代码加载时被立刻运行。如果有一个单例需要延迟加载，比如消耗资源过多，则可以使用懒加载的方法。而命名空间，工具模块则大多需要立刻加载。</p>
+<p>懒加载是通过一个静态方法来实现的。首先可以从上面闭包的单例模式出发，然后将静态属性和方法都移入到一个constructor函数中，接着通过返回一个get方法暴露一个访问入口<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">MyNamespace.Singleton = (<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> uniqueInstance; <span class="comment">// Private attribute that holds the single instance.</span></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">constructor</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">   <span class="comment">// All of the normal singleton code goes here.</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    getInstance: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span>(!uniqueInstance) &#123; </span><br><span class="line">        <span class="comment">// Instantiate only if the instance doesn't exist.</span></span><br><span class="line">        uniqueInstance = <span class="keyword">constructor</span>();</span><br><span class="line">      &#125;</span><br><span class="line">      return uniqueInstance;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure></p>
+<p>惰性单例毫无疑问会增加代码的复杂度，而且不够直观，所以使用时最好多写必要的注释。<br>如果想访问public方法时需要写很长的调用：<br><code>MyNamespace.Singleton.getInstance().publicMethod1();</code></p>
+<p>此时，可以通过alias来解决：<br><code>var MNS = MyNamespace.Singleton;</code></p>
+<p>但是这样又创建了新的全局变量，所以可以再使用一个单例来包裹，包裹后需要特别注意this的指向，可以使用全名来避免错误。</p>
+<h3 id="Branching"><a href="#Branching" class="headerlink" title="Branching"></a>Branching</h3><p>encapsulate browser differences</p>
+<h2 id="一个小结"><a href="#一个小结" class="headerlink" title="一个小结"></a>一个小结</h2><h3 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h3><p>单例模式尤其适用于：</p>
+<ol>
+<li>命名空间和代码的模块化管理</li>
+<li>在复杂的项目中，可以使用惰性单例来优化组件</li>
+<li>有些针对环境的代码可以使用branching</li>
+</ol>
+<p>因为减轻了全局污染的问题，单体模式是非常非常非常非常重要和有用的一个模式。</p>
+<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ol>
+<li>优化代码的组织，方便维护和调试</li>
+<li>使用描述性语言来命名，结构清楚，方便阅读和理解</li>
+<li>避免了函数方法被其它合作开发者误修改</li>
+<li>代码可以与第三方库隔离，更加稳定</li>
+<li>优化代码和用户体验：惰性单例可以减少内存，branching可以更高效地创建兼容方法</li>
+</ol>
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><ol>
+<li>由于只有一个访问口，可能会造成模块之间耦合过深</li>
+<li>同时也给单元测试造成困难</li>
+</ol>
+<h3 id="与其它设计模式结合"><a href="#与其它设计模式结合" class="headerlink" title="与其它设计模式结合"></a>与其它设计模式结合</h3><p>综上所述，单例模式最适用的就是命名空间啦，不会受到上面所说的缺点的影响。其它的应用可以通过与其它设计模式结合来扬长避短。</p>
+<p>不要仅仅使用一个设计模式，使用最适合的那个。</p>
+<p>最后：把自己的代码放在一个单例里组织，是成为一个好的javascript程序员的第一步鸭～</p>
+<hr>
+<p>参考资料：<br>[1]: Pro Javascript Design Patterns. Ross Harmes.<br>[2]: Singleton. <a href="https://www.dofactory.com/javascript/singleton-design-pattern" target="_blank" rel="noopener">https://www.dofactory.com/javascript/singleton-design-pattern</a><br>[3]: 从ES6重新认识JavaScript设计模式(一): 单例模式. <a href="https://www.jianshu.com/p/5386936acfec" target="_blank" rel="noopener">https://www.jianshu.com/p/5386936acfec</a><br>[4]: Javascript模块化编程（一）：模块的写法. <a href="http://www.ruanyifeng.com/blog/2012/10/javascript_module.html" target="_blank" rel="noopener">http://www.ruanyifeng.com/blog/2012/10/javascript_module.html</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/js/" rel="tag"># js</a>
+          
+            <a href="/tags/design-pattern/" rel="tag"># design pattern</a>
+          
+            <a href="/tags/oop/" rel="tag"># oop</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/22/clone/" rel="next" title="“深复制”与“浅复制”">
+                <i class="fa fa-chevron-left"></i> “深复制”与“浅复制”
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/avatar.gif" alt="Esther Zhou">
+          <p class="site-author-name" itemprop="name">Esther Zhou</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">11</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#singleton是什么"><span class="nav-number">1.</span> <span class="nav-text">singleton是什么</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义"><span class="nav-number">1.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一点概述"><span class="nav-number">1.2.</span> <span class="nav-text">一点概述</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#js的实现"><span class="nav-number">2.</span> <span class="nav-text">js的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#对象字面量"><span class="nav-number">2.1.</span> <span class="nav-text">对象字面量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#闭包"><span class="nav-number">2.2.</span> <span class="nav-text">闭包</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一些应用"><span class="nav-number">3.</span> <span class="nav-text">一些应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#命名空间namespace"><span class="nav-number">3.1.</span> <span class="nav-text">命名空间namespace</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#静态变量"><span class="nav-number">3.2.</span> <span class="nav-text">静态变量</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#对象字面量-1"><span class="nav-number">3.2.1.</span> <span class="nav-text">对象字面量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#闭包-1"><span class="nav-number">3.2.2.</span> <span class="nav-text">闭包</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#惰性单例-lazy-instantiation"><span class="nav-number">3.3.</span> <span class="nav-text">惰性单例 lazy instantiation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Branching"><span class="nav-number">3.4.</span> <span class="nav-text">Branching</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一个小结"><span class="nav-number">4.</span> <span class="nav-text">一个小结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#应用场景"><span class="nav-number">4.1.</span> <span class="nav-text">应用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#优点"><span class="nav-number">4.2.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缺点"><span class="nav-number">4.3.</span> <span class="nav-text">缺点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#与其它设计模式结合"><span class="nav-number">4.4.</span> <span class="nav-text">与其它设计模式结合</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-book"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Esther Zhou</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
